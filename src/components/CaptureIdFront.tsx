@@ -8,7 +8,7 @@ export const CaptureIdFront: React.FC<CaptureIdFrontProps> = ({ onContinue }) =>
   return (
     <div className="min-h-screen flex flex-col bg-white">
       {/* Header */}
-      <header className="flex flex-col items-center bg-white border-b border-gray-200 px-4 py-3">
+      <header className="flex mt-[10px] flex-col items-center bg-white border-b  px-4 py-3">
         <img
           src="https://www.idmerit.com/wp-content/themes/idmerit/images/idmerit-logo.svg"
           alt="IDMerit Logo"
@@ -16,6 +16,8 @@ export const CaptureIdFront: React.FC<CaptureIdFrontProps> = ({ onContinue }) =>
         />
         {/* <p className="text-gray-500 text-xs">Powered by <img src="https://www.idmerit.com/wp-content/themes/idmerit/images/idmerit-logo.svg" alt="IDMerit" className="inline h-4 ml-1" /></p> */}
       </header>
+
+      
 
       {/* Main Content */}
       <main className="flex flex-col flex-grow items-center justify-center p-6">
@@ -32,12 +34,9 @@ export const CaptureIdFront: React.FC<CaptureIdFrontProps> = ({ onContinue }) =>
         >
           Continue
         </button>
+        <p className="mt-8 text-xs text-gray-400">Powered by <img src="https://www.idmerit.com/wp-content/themes/idmerit/images/idmerit-logo.svg" alt="IDMerit" className="inline h-4 ml-1" /></p>
       </main>
 
-      {/* Footer */}
-      <footer className="flex items-center justify-center bg-gray-100 px-4 py-3">
-        <div className="text-gray-500 text-xs">Powered by <img src="https://www.idmerit.com/wp-content/themes/idmerit/images/idmerit-logo.svg" alt="IDMerit" className="inline h-4 ml-1" /></div>
-      </footer>
     </div>
   );
 };

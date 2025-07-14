@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Scan } from 'lucide-react';
+import { Camera } from 'lucide-react';
 import { useCamera } from '../hooks/useCamera';
 import { kycApiService } from '../services/kycApi';
 import { ErrorPage, CaptureError } from './ErrorPage';
@@ -129,156 +129,78 @@ export const BarcodeScanner: React.FC<BarcodeScannerProps> = ({ onScan, onNext, 
 
   if (captureError) {
     return (
-      <div className="h-screen flex flex-col bg-white">
-        
-
-        {/* Content */}
-        <div className="flex-1 flex items-center justify-center p-3 min-h-0">
-          <div className="w-full max-w-md bg-white border border-gray-200 rounded-2xl p-4">
-            {/* Header */}
-            <div className="flex-shrink-0 bg-white border-b border-gray-200 px-4 py-2">
-              <div className="flex justify-center">
-                <img
-                  className="h-6"
-                  src="https://www.idmerit.com/wp-content/themes/idmerit/images/idmerit-logo.svg"
-                  alt="IDMerit Logo"
-                />
-              </div>
-            </div>  
-            <ErrorPage
-              error={captureError}
-              onRetry={handleRetry}
-              onBack={handleRetry}
-            />
-            {/* Footer */}
-            <div className="flex-shrink-0 bg-white border-t border-gray-200 px-4 py-2">
-              <div className="flex justify-center items-center gap-2">
-                <span className="text-xs text-gray-500">Powered by</span>
-                <img
-                  className="h-4"
-                  src="https://www.idmerit.com/wp-content/themes/idmerit/images/idmerit-logo.svg"
-                  alt="IDMerit Logo"
-                />
-              </div>
-            </div>
-          </div>
-        </div>
-
-      </div>
+      <ErrorPage error={captureError} onRetry={handleRetry} onBack={handleRetry} />
     );
   }
 
   return (
-    <div className="h-screen flex flex-col bg-white">
-    
-      {/* Main Content */}
-      <div className="flex-1 flex flex-col justify-center p-3 min-h-0 overflow-hidden">
-        <div className="w-full max-w-md mx-auto">
-            {/* Header */}
-            <div className="flex-shrink-0 bg-white border-b border-gray-200 px-4 py-2">
-              <div className="flex justify-center">
-                <img
-                  className="h-6"
-                  src="https://www.idmerit.com/wp-content/themes/idmerit/images/idmerit-logo.svg"
-                  alt="IDMerit Logo"
-                />
-              </div>
-            </div>
-          <div className="bg-white border border-gray-200 rounded-2xl overflow-hidden">
-            {/* Title Section */}
-            <div className="bg-blue-600 px-4 py-4 text-center">
-              <Scan className="w-8 h-8 mx-auto mb-2 text-white" />
-              <h1 className="text-lg font-bold text-white mb-1">Scan Barcode</h1>
-              <p className="text-blue-100 text-xs">Align the barcode within the frame</p>
-            </div>
+    <div className="relative h-screen flex flex-col bg-white">
+      <div className="flex-shrink-0 bg-white px-4 py-3 border-b border-gray-200 text-center">
+        <img
+          className="h-6 mx-auto"
+          src="https://www.idmerit.com/wp-content/themes/idmerit/images/idmerit-logo.svg"
+          alt="IDMerit Logo"
+        />
+        <h1 className="text-black text-base font-semibold mt-2">Scan Barcode</h1>
+      </div>
 
-            {/* Camera Section */}
-            <div className="p-3">
-              <div className="relative bg-gray-900 rounded-xl overflow-hidden aspect-[4/3] mb-3">
-                <video ref={videoRef} autoPlay playsInline muted className="w-full h-full object-cover" />
-                <div className="absolute inset-0 flex items-center justify-center">
-                  <div className="w-60 h-16 border-3 border-white/60 rounded-lg flex items-center justify-center">
-                    <div className="text-white/80 text-center">
-                      <Scan className="w-5 h-5 mx-auto mb-1" />
-                      <p className="text-xs font-medium">Barcode Scan Area</p>
-                    </div>
-                  </div>
-                </div>
-
-                {(isLoading || isScanning) && (
-                  <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
-                    <div className="text-center text-white">
-                      <div className="animate-spin rounded-full h-8 w-8 border-3 border-white border-t-transparent mx-auto mb-2"></div>
-                      <p className="text-xs">{isScanning ? 'Scanning...' : 'Loading camera...'}</p>
-                    </div>
-                  </div>
-                )}
-              </div>
-
-              {ocrStatus === 'SUCCESSFUL' && (
-                <div className="bg-green-50 border border-green-200 text-green-800 px-3 py-2 rounded-lg mb-3 text-xs text-center font-semibold">
-                  Barcode Status: SUCCESSFUL
-                </div>
-              )}
-
-              {error && (
-                <div className="bg-red-50 border border-red-200 text-red-600 px-3 py-2 rounded-lg mb-3 text-xs">
-                  {error}
-                </div>
-              )}
-
-              {uploadError && (
-                <div className="bg-red-50 border border-red-200 text-red-600 px-3 py-2 rounded-lg mb-3 text-xs">
-                  {uploadError}
-                </div>
-              )}
-
-              {/* Action Buttons */}
-              <div className="space-y-2">
-                {ocrStatus !== 'SUCCESSFUL' ? (
-                  <button
-                    onClick={handleScan}
-                    disabled={!isStreaming || isScanning}
-                    className="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 text-white font-semibold py-3 px-4 rounded-lg transition-all duration-200 flex items-center justify-center gap-2 text-sm"
-                  >
-                    {isScanning ? (
-                      <>
-                        <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent"></div>
-                        Scanning...
-                      </>
-                    ) : (
-                      <>
-                        <Scan className="w-4 h-4" />
-                        Scan Barcode
-                      </>
-                    )}
-                  </button>
-                ) : (
-                  <button
-                    onClick={handleRetry}
-                    className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-4 rounded-lg transition-all duration-200 flex items-center justify-center gap-2 text-sm"
-                  >
-                    Retry
-                  </button>
-                )}
-              </div>
-              {/* Footer */}
-              <div className="flex-shrink-0 bg-white border-t border-gray-200 px-4 py-2">
-                <div className="flex justify-center items-center gap-2">
-                  <span className="text-xs text-gray-500">Powered by</span>
-                  <img
-                    className="h-4"
-                    src="https://www.idmerit.com/wp-content/themes/idmerit/images/idmerit-logo.svg"
-                    alt="IDMerit Logo"
-                  />
-                  </div>
+      <div className="flex-1 flex flex-col justify-between p-3">
+        <div className="w-full max-w-md mx-auto flex flex-col flex-grow">
+          <div className="relative flex-grow bg-black rounded-xl overflow-hidden aspect-[4/3] mb-3">
+            <video
+              ref={videoRef}
+              autoPlay
+              playsInline
+              muted
+              className="w-full h-full object-cover"
+            />
+            <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+              <div className="w-60 h-16 border-2 border-white/70 rounded-lg flex items-center justify-center">
+                <p className="text-white text-sm">Align Barcode in Frame</p>
               </div>
             </div>
           </div>
+
+          {/* Capture Button */}
+          <div className="flex justify-center mb-4">
+            <button
+              onClick={handleScan}
+              disabled={!isStreaming || isScanning}
+              className="w-16 h-16 rounded-full bg-white border border-gray-700 flex items-center justify-center hover:bg-gray-200 disabled:opacity-50 transition"
+            >
+              <Camera className="w-8 h-8 text-gray-800" />
+            </button>
+          </div>
+
+          {ocrStatus === 'SUCCESSFUL' && (
+            <div className="bg-green-100 border border-green-300 text-green-800 px-3 py-2 rounded-lg text-sm text-center">
+              Barcode Scan: SUCCESSFUL
+            </div>
+          )}
+
+          {uploadError && (
+            <div className="bg-red-100 border border-red-300 text-red-700 px-3 py-2 rounded-lg text-sm text-center">
+              {uploadError}
+            </div>
+          )}
         </div>
       </div>
 
-      
+      <div className="flex-shrink-0 bg-white border-t border-gray-200 px-4 py-3 text-center">
+        <span className="text-xs text-gray-500">Powered by</span>
+        <img
+          className="h-4 inline-block ml-1"
+          src="https://www.idmerit.com/wp-content/themes/idmerit/images/idmerit-logo.svg"
+          alt="IDMerit Logo"
+        />
+      </div>
+
+      {(isScanning || isLoading) && (
+        <div className="absolute inset-0 bg-black bg-opacity-50 z-50 flex flex-col items-center justify-center">
+          <div className="animate-spin rounded-full h-10 w-10 border-4 border-white border-t-transparent mb-3"></div>
+          <p className="text-white text-sm">{isScanning ? 'Scanning...' : 'Loading camera...'}</p>
+        </div>
+      )}
     </div>
   );
 };

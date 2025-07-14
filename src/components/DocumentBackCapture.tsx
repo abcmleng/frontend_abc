@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from 'react';
-import { CreditCard } from 'lucide-react';
 import { useCamera } from '../hooks/useCamera';
 import { CapturedImage } from '../types/kyc';
 import { kycApiService } from '../services/kycApi';
 import { ErrorPage, CaptureError } from './ErrorPage';
+import { Camera } from 'lucide-react';
 
 interface DocumentBackCaptureProps {
   onCapture: (image: CapturedImage) => void;
@@ -16,23 +16,20 @@ export const DocumentBackCapture: React.FC<DocumentBackCaptureProps> = ({
   onCapture,
   onNext,
   verificationId,
-  onError
+  onError,
 }) => {
   const {
     videoRef,
     isStreaming,
     isLoading,
-    error,
     startCamera,
     stopCamera,
-    captureImage
+    captureImage,
   } = useCamera();
 
   const [capturedImage, setCapturedImage] = useState<CapturedImage | null>(null);
   const [isCapturing, setIsCapturing] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
-  const [uploadError, setUploadError] = useState<string | null>(null);
-  const [isClearImage, setIsClearImage] = useState(false);
   const [captureError, setCaptureError] = useState<CaptureError | null>(null);
 
   useEffect(() => {
@@ -43,12 +40,11 @@ export const DocumentBackCapture: React.FC<DocumentBackCaptureProps> = ({
   const handleCapture = async () => {
     setIsCapturing(true);
     const result = await captureImage();
-
     if (result) {
       const image: CapturedImage = {
         blob: result.blob,
         url: result.url,
-        timestamp: new Date()
+        timestamp: new Date(),
       };
       setCapturedImage(image);
       onCapture(image);
@@ -58,60 +54,45 @@ export const DocumentBackCapture: React.FC<DocumentBackCaptureProps> = ({
   };
 
   const handleRetake = () => {
-    if (capturedImage) {
-      URL.revokeObjectURL(capturedImage.url);
-    }
+    if (capturedImage) URL.revokeObjectURL(capturedImage.url);
     setCapturedImage(null);
-    setUploadError(null);
-    setIsClearImage(false);
     setCaptureError(null);
     startCamera('environment');
   };
 
   const handleCheckQuality = async (image: CapturedImage) => {
-    if (!image) return;
-
-    setIsUploading(true);
-    setUploadError(null);
-    setIsClearImage(false);
-    setCaptureError(null);
-
     try {
-      const response = await kycApiService.processDocument({
+      setIsUploading(true);
+      const res = await kycApiService.processDocument({
         image: image.blob,
         type: 'document-back',
-        verificationId
+        verificationId,
       });
 
-      if (response.message === 'CLEAR IMAGE') {
-        setIsClearImage(true);
-
-        const uuid = 'ML_' + (crypto.randomUUID ? crypto.randomUUID() : Math.random().toString(36).substring(2, 15));
-
-        const ocrResponse = await kycApiService.processOCRDocument(image.blob, uuid);
+      if (res.message === 'CLEAR IMAGE') {
+        const uuid =
+          'ML_' +
+          (crypto.randomUUID?.() || Math.random().toString(36).substring(2, 15));
+        await kycApiService.processOCRDocument(image.blob, uuid);
         stopCamera();
         onNext();
       } else {
-        setUploadError(response.message || 'Document is not clear. Please retake.');
         setCaptureError({
           type: 'validation',
-          message: response.message || 'Document is not clear. Please retake.',
-          tips: ['Ensure the document is fully visible.', 'Avoid glare or shadows.'],
+          message: res.message || 'Document is not clear. Please retake.',
+          tips: ['Ensure full visibility of the document.', 'Avoid glare or shadows.'],
         });
-        if (onError) onError(response.message || 'Document is not clear. Please retake.');
+        onError?.(res.message || 'Document is not clear. Please retake.');
       }
-    } catch (error: any) {
-      const errorMessage =
-        error?.response?.data?.message ||
-        error?.message ||
-        'Network error. Please try again.';
-      setUploadError(errorMessage);
+    } catch (err: any) {
+      const msg =
+        err?.response?.data?.message || err?.message || 'Network error. Please try again.';
       setCaptureError({
         type: 'network',
-        message: errorMessage,
+        message: msg,
         tips: ['Check your internet connection.', 'Try again later.'],
       });
-      if (onError) onError(errorMessage);
+      onError?.(msg);
     } finally {
       setIsUploading(false);
     }
@@ -120,166 +101,124 @@ export const DocumentBackCapture: React.FC<DocumentBackCaptureProps> = ({
   if (captureError) {
     return (
       <div className="h-screen flex flex-col bg-white">
-  
-        {/* Content */}
-        <div className="flex-1 flex items-center justify-center p-3 min-h-0">
+        <div className="flex-1 flex items-center justify-center p-3">
           <div className="w-full max-w-md bg-white border border-gray-200 rounded-2xl p-4">
-                   {/* Header */}
-          <div className="flex-shrink-0 bg-white border-b border-gray-200 px-4 py-2">
-            <div className="flex justify-center">
+            <div className="border-b border-gray-200 pb-2 mb-4 flex justify-center">
               <img
                 className="h-6"
                 src="https://www.idmerit.com/wp-content/themes/idmerit/images/idmerit-logo.svg"
-                alt="IDMerit Logo"
+                alt="IDMerit"
               />
             </div>
-          </div>
-       
             <ErrorPage
               error={captureError}
-              onRetry={() => {
-                setCaptureError(null);
-                handleRetake();
-              }}
-              onBack={() => {
-                setCaptureError(null);
-                handleRetake();
-              }}
+              onRetry={handleRetake}
+              onBack={handleRetake}
             />
-            {/* Footer */}
-          <div className="flex-shrink-0 bg-white border-t border-gray-200 px-4 py-2">
-            <div className="flex justify-center items-center gap-2">
+            <div className="border-t border-gray-200 pt-2 mt-4 flex justify-center items-center gap-2">
               <span className="text-xs text-gray-500">Powered by</span>
               <img
                 className="h-4"
                 src="https://www.idmerit.com/wp-content/themes/idmerit/images/idmerit-logo.svg"
-                alt="IDMerit Logo"
+                alt="IDMerit"
               />
             </div>
           </div>
-          </div>
         </div>
-
-        
       </div>
     );
   }
 
   return (
-    <div className="h-screen flex flex-col bg-white">
-    
-      {/* Main Content */}
-      <div className="flex-1 flex flex-col justify-center p-3 min-h-0 overflow-hidden">
-        <div className="w-full max-w-md mx-auto">
-          {/* header logo image in main page*/}
-          <div className="flex-shrink-0 bg-white border-b border-gray-200 px-4 py-2">
-              <div className="flex justify-center">
-                <img
-                  className="h-6"
-                  src="https://www.idmerit.com/wp-content/themes/idmerit/images/idmerit-logo.svg"
-                  alt="IDMerit Logo"
-                />
-              </div>
+    <div className="relative h-screen flex flex-col bg-white">
+      {/* Header */}
+      <div className="bg-white px-4 py-3 border-b border-gray-200">
+        <div className="flex justify-center">
+          <img
+            className="h-6"
+            src="https://www.idmerit.com/wp-content/themes/idmerit/images/idmerit-logo.svg"
+            alt="IDMerit Logo"
+          />
         </div>
-          <div className="bg-white border border-gray-200 rounded-2xl overflow-hidden">
-            {/* Title Section */}
-            <div className="bg-blue-600 px-4 py-4 text-center">
-              <CreditCard className="w-8 h-8 mx-auto mb-2 text-white" />
-              <h1 className="text-lg font-bold text-white mb-1">Document Back</h1>
-              <p className="text-blue-100 text-xs">Align your ID back within the frame</p>
-            </div>
+        <h1 className="text-black text-center mt-2 text-base font-semibold">
+          Document Back Side
+        </h1>
+      </div>
 
-            {/* Camera Section */}
-            <div className="p-3">
-              <div className="relative bg-gray-900 rounded-xl overflow-hidden aspect-[4/3] mb-3">
-                {!capturedImage ? (
-                  <>
-                    <video
-                      ref={videoRef}
-                      autoPlay
-                      playsInline
-                      muted
-                      className="w-full h-full object-cover"
+      {/* Camera Area */}
+      <div className="flex-1 flex flex-col justify-between p-3 min-h-0">
+        <div className="w-full max-w-md mx-auto flex flex-col flex-grow">
+          <div className="relative flex-grow bg-black rounded-xl overflow-hidden aspect-[4/3] mb-3">
+            {!capturedImage ? (
+              <>
+                <video
+                  ref={videoRef}
+                  autoPlay
+                  playsInline
+                  muted
+                  className="w-full h-full object-cover"
+                />
+                {/* Overlay frame */}
+                <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
+                  <div className="w-60 h-40 border-2 border-white rounded-xl relative mb-4">
+                    <img
+                      src="src/images/camera-bg.png"
+                      alt="Document Frame"
+                      className="absolute inset-0 w-full h-full object-contain"
                     />
-                    <div className="absolute inset-0 flex items-center justify-center">
-                      <div className="w-60 h-36 border-3 border-white/60 rounded-xl flex items-center justify-center">
-                        <div className="text-white/80 text-center">
-                          <CreditCard className="w-8 h-8 mx-auto mb-1" />
-                          <p className="text-xs font-medium">Align ID Back</p>
-                        </div>
-                      </div>
-                    </div>
-                    {isLoading && (
-                      <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
-                        <div className="animate-spin rounded-full h-8 w-8 border-3 border-white border-t-transparent"></div>
-                      </div>
-                    )}
-                  </>
-                ) : (
-                  <img
-                    src={capturedImage.url}
-                    alt="Document back"
-                    className="w-full h-full object-cover"
-                  />
-                )}
-              </div>
-
-              {error && (
-                <div className="bg-red-50 border border-red-200 text-red-600 px-3 py-2 rounded-lg mb-3 text-xs">
-                  {error}
-                </div>
-              )}
-
-              {uploadError && (
-                <div className="bg-red-50 border border-red-200 text-red-600 px-3 py-2 rounded-lg mb-3 text-xs">
-                  {uploadError}
-                </div>
-              )}
-
-              {isUploading && (
-                <div className="bg-blue-50 border border-blue-200 text-blue-600 px-3 py-2 rounded-lg mb-3 text-xs text-center">
-                  <div className="flex items-center justify-center gap-2">
-                    <div className="animate-spin rounded-full h-3 w-3 border-2 border-blue-600 border-t-transparent"></div>
-                    Processing document...
                   </div>
+                  <p className="text-white text-center text-sm px-2">
+                    Position your document fully within the frame
+                  </p>
                 </div>
-              )}
 
-              {/* Action Buttons */}
-              <div className="space-y-2">
-                {!capturedImage && (
-                  <button
-                    onClick={handleCapture}
-                    disabled={!isStreaming || isCapturing || isUploading}
-                    className="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 text-white font-semibold py-3 px-4 rounded-lg transition-all duration-200 flex items-center justify-center gap-2 text-sm"
-                  >
-                    {isCapturing ? (
-                      <>
-                        <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent"></div>
-                        Capturing...
-                      </>
-                    ) : (
-                      <>
-                        <CreditCard className="w-4 h-4" />
-                        Capture Document
-                      </>
-                    )}
-                  </button>
+                {isLoading && (
+                  <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
+                    <div className="animate-spin rounded-full h-8 w-8 border-4 border-white border-t-transparent"></div>
+                  </div>
                 )}
-              </div>
-              {/* Footer below capture button */}
-                <div className="mt-4 flex justify-center items-center gap-2">
-                  <span className="text-xs text-gray-500">Powered by</span>
-                  <img
-                    className="h-4"
-                    src="https://www.idmerit.com/wp-content/themes/idmerit/images/idmerit-logo.svg"
-                    alt="IDMerit Logo"
-                  />
-                </div>
-            </div>
+              </>
+            ) : (
+              <img
+                src={capturedImage.url}
+                alt="Captured Document"
+                className="w-full h-full object-cover"
+              />
+            )}
           </div>
+
+          {/* Capture Button below video */}
+          {!capturedImage && (
+            <div className="flex justify-center mb-4">
+              <button
+                onClick={handleCapture}
+                disabled={!isStreaming || isCapturing || isUploading}
+                className="w-16 h-16 rounded-full bg-white border border-gray-700 flex items-center justify-center hover:bg-gray-200 disabled:opacity-50 transition"
+              >
+                <Camera className="w-8 h-8 text-gray-800" />
+              </button>
+            </div>
+          )}
         </div>
       </div>
+
+      {/* Footer */}
+      <div className="flex-shrink-0 bg-white border-t border-gray-200 px-4 py-3 flex justify-center items-center gap-2">
+        <span className="text-xs text-gray-500">Powered by</span>
+        <img
+          className="h-4"
+          src="https://www.idmerit.com/wp-content/themes/idmerit/images/idmerit-logo.svg"
+          alt="IDMerit Logo"
+        />
+      </div>
+
+      {/* Processing overlay */}
+      {(isCapturing || isUploading) && (
+        <div className="absolute inset-0 bg-black bg-opacity-50 z-50 flex flex-col items-center justify-center">
+          <div className="animate-spin rounded-full h-10 w-10 border-4 border-white border-t-transparent mb-4"></div>
+          <p className="text-white text-sm">Processing...</p>
+        </div>
+      )}
     </div>
   );
 };

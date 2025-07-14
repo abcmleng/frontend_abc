@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { CreditCard } from 'lucide-react';
+import { Camera } from 'lucide-react';
 import { useCamera } from '../hooks/useCamera';
 import { CapturedImage } from '../types/kyc';
 import { kycApiService } from '../services/kycApi';
@@ -103,6 +103,14 @@ export const DocumentFrontCapture: React.FC<DocumentFrontCaptureProps> = ({
         stopCamera();
         onCapture(image);
         onNext();
+      } else if (response.message === 'FAKE') {
+        setUploadError('Fake document detected. Please retake.');
+        setCaptureError({
+          type: 'validation',
+          message: 'Fake document detected. Please retake.',
+          tips: ['Ensure the document is genuine.', 'Try again with a real document.'],
+        });
+        if (onError) onError('Fake document detected. Please retake.');
       } else {
         setUploadError(response.message || 'Document is not clear. Please retake.');
         setCaptureError({
@@ -126,18 +134,15 @@ export const DocumentFrontCapture: React.FC<DocumentFrontCaptureProps> = ({
       if (onError) onError(errorMessage);
     } finally {
       setIsUploading(false);
+      setIsCapturing(false);
     }
   };
 
   if (captureError) {
     return (
       <div className="h-screen flex flex-col bg-white">
-        
-
-        {/* Content */}
         <div className="flex-1 flex items-center justify-center p-3 min-h-0">
           <div className="w-full max-w-md bg-white border border-gray-200 rounded-2xl p-4">
-            {/* Header */}
             <div className="flex-shrink-0 bg-white border-b border-gray-200 px-4 py-2">
               <div className="flex justify-center">
                 <img
@@ -149,18 +154,17 @@ export const DocumentFrontCapture: React.FC<DocumentFrontCaptureProps> = ({
             </div>
             <ErrorPage
               error={captureError}
-            onRetry={() => {
-              setCaptureError(null);
-              if (onResetError) onResetError();
-              handleRetake();
-            }}
-            onBack={() => {
-              setCaptureError(null);
-              if (onResetError) onResetError();
-              handleRetake();
-            }}
+              onRetry={() => {
+                setCaptureError(null);
+                if (onResetError) onResetError();
+                handleRetake();
+              }}
+              onBack={() => {
+                setCaptureError(null);
+                if (onResetError) onResetError();
+                handleRetake();
+              }}
             />
-            {/* Footer */}
             <div className="flex-shrink-0 bg-white border-t border-gray-200 px-4 py-2">
               <div className="flex justify-center items-center gap-2">
                 <span className="text-xs text-gray-500">Powered by</span>
@@ -173,136 +177,99 @@ export const DocumentFrontCapture: React.FC<DocumentFrontCaptureProps> = ({
             </div>
           </div>
         </div>
-              
       </div>
     );
   }
 
   return (
-    <div className="h-screen flex flex-col bg-white">
+    <div className="relative h-screen flex flex-col bg-white">
       {/* Header */}
-  
-      {/* Main Content */}
-      <div className="flex-1 flex flex-col justify-center p-3 min-h-0 overflow-hidden">
-        <div className="w-full max-w-md mx-auto">
-
-      {/*header present inside the main page*/}
-        <div className="flex-shrink-0 bg-white border-b border-gray-200 px-4 py-2">
-          <div className="flex justify-center">
-            <img
-              className="h-6"
-              src="https://www.idmerit.com/wp-content/themes/idmerit/images/idmerit-logo.svg"
-              alt="IDMerit Logo"
-            />
-          </div>
-        </div>
-          <div className="bg-white border border-gray-200 rounded-2xl overflow-hidden">
-            {/* Title Section */}
-            <div className="bg-blue-600 px-4 py-4 text-center">
-              <CreditCard className="w-8 h-8 mx-auto mb-2 text-white" />
-              <h1 className="text-lg font-bold text-white mb-1">Document Front</h1>
-              <p className="text-blue-100 text-xs">Align your ID front within the frame</p>
-            </div>
-
-            {/* Camera Section */}
-            <div className="p-3">
-              <div className="relative bg-gray-900 rounded-xl overflow-hidden aspect-[4/3] mb-3">
-                {!capturedImage ? (
-                  <>
-                    <video
-                      ref={videoRef}
-                      autoPlay
-                      playsInline
-                      muted
-                      className="w-full h-full object-cover"
-                    />
-                    <div className="absolute inset-0 flex items-center justify-center">
-                      <div className="w-60 h-40 border-3 border-white/60 rounded-xl flex items-center justify-center">
-                        <div className="text-white/80 text-center">
-                          <CreditCard className="w-8 h-8 mx-auto mb-1" />
-                          <p className="text-xs font-medium">Align ID Front</p>
-                        </div>
-                      </div>
-                    </div>
-                    {isLoading && (
-                      <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
-                        <div className="animate-spin rounded-full h-8 w-8 border-3 border-white border-t-transparent"></div>
-                      </div>
-                    )}
-                  </>
-                ) : (
-                  <img
-                    src={capturedImage.url}
-                    alt="Document front"
-                    className="w-full h-full object-cover"
-                  />
-                )}
-              </div>
-
-              {uploadError && (
-                <div className="bg-red-50 border border-red-200 text-red-600 px-3 py-2 rounded-lg mb-3 text-xs">
-                  {uploadError}
-                </div>
-              )}
-
-              {isUploading && (
-                <div className="bg-blue-50 border border-blue-200 text-blue-600 px-3 py-2 rounded-lg mb-3 text-xs text-center">
-                  <div className="flex items-center justify-center gap-2">
-                    <div className="animate-spin rounded-full h-3 w-3 border-2 border-blue-600 border-t-transparent"></div>
-                    Processing document...
-                  </div>
-                </div>
-              )}
-
-              {/* Action Buttons */}
-              <div className="space-y-2">
-                {!capturedImage && (
-                  <button
-                    onClick={handleCapture}
-                    disabled={!isStreaming || isCapturing || isUploading}
-                    className="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 text-white font-semibold py-3 px-4 rounded-lg transition-all duration-200 flex items-center justify-center gap-2 text-sm"
-                  >
-                    {isCapturing ? (
-                      <>
-                        <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent"></div>
-                        Capturing...
-                      </>
-                    ) : (
-                      <>
-                        <CreditCard className="w-4 h-4" />
-                        Capture Document
-                      </>
-                    )}
-                  </button>
-                )}
-              </div>
-
-              {/* Footer below capture button */}
-              <div className="mt-4 flex justify-center items-center gap-2">
-                <span className="text-xs text-gray-500">Powered by</span>
-                <img
-                  className="h-4"
-                  src="https://www.idmerit.com/wp-content/themes/idmerit/images/idmerit-logo.svg"
-                  alt="IDMerit Logo"
-                />
-              </div>
-              
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Footer
-      <div className="flex-shrink-0 bg-white border-t border-gray-200 px-4 py-2">
-        <div className="flex justify-center items-center gap-2">
-          <span className="text-xs text-gray-500">Powered by</span>
+      <div className="flex-shrink-0 bg-white border-b border-gray-200 px-4 py-3">
+        <div className="flex justify-center">
           <img
-            className="h-4"
+            className="h-6"
             src="https://www.idmerit.com/wp-content/themes/idmerit/images/idmerit-logo.svg"
             alt="IDMerit Logo"
           />
         </div>
-      </div> */}
+        <h1 className="text-black text-center mt-2 text-base font-semibold">
+          Document Front Side
+        </h1>
+      </div>
+
+      {/* Main Content */}
+      <div className="flex-1 flex flex-col justify-between p-3 min-h-0 overflow-hidden">
+        <div className="w-full max-w-md mx-auto flex flex-col flex-grow">
+          {/* Camera Section */}
+          <div className="relative flex-grow bg-white rounded-xl overflow-hidden aspect-[4/3] mb-3 border border-gray-300">
+            {!capturedImage ? (
+              <>
+                <video
+                  ref={videoRef}
+                  autoPlay
+                  playsInline
+                  muted
+                  className="w-full h-full object-cover"
+                />
+                <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
+                  <div className="w-60 h-40 border-2 border-white-700 rounded-xl relative flex items-center justify-center mb-4">
+                    <img
+                      src="src/images/camera-bg.png"
+                      alt="Document Icon"
+                      className="absolute center"
+                    />
+                  </div>
+                  <p className="text-white text-center text-sm px-2">
+                    Position your document fully within the frame
+                  </p>
+                </div>
+                {isLoading && (
+                  <div className="absolute inset-0 bg-white/50 flex items-center justify-center">
+                    <div className="animate-spin rounded-full h-8 w-8 border-3 border-gray-700 border-t-transparent"></div>
+                  </div>
+                )}
+              </>
+            ) : (
+              <img
+                src={capturedImage.url}
+                alt="Document front"
+                className="w-full h-full object-cover"
+              />
+            )}
+          </div>
+
+          {/* Capture Button */}
+          {!capturedImage && (
+            <div className="flex justify-center mb-4">
+              <button
+                onClick={handleCapture}
+                disabled={!isStreaming || isCapturing || isUploading}
+                className="w-16 h-16 rounded-full bg-white border border-gray-700 flex items-center justify-center hover:bg-gray-200 disabled:opacity-50 transition"
+              >
+                <Camera className="w-8 h-8 text-gray-800" />
+              </button>
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Footer */}
+      <div className="flex-shrink-0 bg-white border-t border-gray-200 px-4 py-3 flex justify-center items-center gap-2">
+        <span className="text-xs text-gray-500">Powered by</span>
+        <img
+          className="h-4"
+          src="https://www.idmerit.com/wp-content/themes/idmerit/images/idmerit-logo.svg"
+          alt="IDMerit Logo"
+        />
+      </div>
+
+      {/* Loading Overlay after capture */}
+      {(isCapturing || isUploading) && (
+        <div className="absolute inset-0 bg-black bg-opacity-50 z-50 flex flex-col items-center justify-center">
+          <div className="animate-spin rounded-full h-10 w-10 border-4 border-white border-t-transparent mb-4"></div>
+          <p className="text-white text-sm">Processing...</p>
+        </div>
+      )}
     </div>
   );
 };

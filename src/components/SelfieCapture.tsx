@@ -1,3 +1,4 @@
+// src/components/SelfieCapture.tsx
 import React, { useEffect, useState } from 'react';
 import { Camera } from 'lucide-react';
 import { useCamera } from '../hooks/useCamera';
@@ -9,7 +10,7 @@ interface SelfieCaptureProps {
   onCapture?: (image: CapturedImage) => void;
   onNext: () => void;
   verificationId: string;
-  onError?: (errorMessage: string) => void;
+  onError?: (error_code: string) => void;
 }
 
 export const SelfieCapture: React.FC<SelfieCaptureProps> = ({
@@ -58,19 +59,21 @@ export const SelfieCapture: React.FC<SelfieCaptureProps> = ({
         type: 'selfie',
         verificationId,
       });
-      if (!response || !response.live) throw new Error('No face detected. Please try again.');
-      if (response.live === 'FAKE') throw new Error(response.message || 'Fake face detected.');
-      if (response.live !== 'REAL') throw new Error(response.message || 'Face verification failed.');
-
-      stopCamera();
-      onNext();
+      if (response && (response.live === 'REAL' || response.live === 'FAKE')) {
+        stopCamera();
+        onNext();
+        return;
+      }
+      throw new Error('Unexpected response from server.');
     } catch (error: any) {
-      const msg = error?.message || 'Network error. Please try again.';
+      console.error('[SelfieCapture] Upload failed:', error);
+      const apiMessage = error?.response?.data?.errorMessage;
+      const msg = apiMessage || error?.message || 'Network error. Please try again.';
       setUploadError(msg);
       setCaptureError({
-        type: 'network',
+        type: 'alert',
         message: msg,
-        tips: ['Check your internet connection.', 'Try again later.'],
+        tips: ['Ensure proper lighting and face positioning.', 'Try again.'],
       });
       onError?.(msg);
     }
@@ -86,147 +89,66 @@ export const SelfieCapture: React.FC<SelfieCaptureProps> = ({
 
   if (captureError) {
     return (
-      <div className="h-screen flex flex-col bg-white">
-        
-        {/* Error Content */}
-        <div className="flex-1 flex items-center justify-center p-2 min-h-0">
-         
-         
-          <div className="w-full max-w-xs bg-white border border-gray-200 rounded-xl p-3">
-             {/* Header */}
-            <div className="flex-shrink-0 bg-white border-b border-gray-200 px-2 py-1">
-              <div className="flex justify-center">
-                <img className="h-4" src="https://www.idmerit.com/wp-content/themes/idmerit/images/idmerit-logo.svg" alt="IDMerit Logo" />
-              </div>
-            </div>
-            
-            <ErrorPage
-              error={captureError}
-              onRetry={() => {
-                setCaptureError(null);
-                handleRetake();
-              }}
-              onBack={() => {
-                setCaptureError(null);
-                handleRetake();
-              }}
-            />
-             {/* Footer */}
-            <div className="flex-shrink-0 bg-white border-t border-gray-200 px-2 py-1">
-              <div className="flex justify-center items-center gap-1">
-                <span className="text-[10px] text-gray-500">Powered by</span>
-                <img className="h-3" src="https://www.idmerit.com/wp-content/themes/idmerit/images/idmerit-logo.svg" alt="IDMerit Logo" />
-              </div>
-            </div>
-          </div>
-         
-        </div>
-
-        
-      </div>
+      <ErrorPage error={captureError} onRetry={handleRetake} onBack={handleRetake} />
     );
   }
 
   return (
-    <div className="h-screen flex flex-col bg-white">
-      {/* Header */}
-      {/* Removed header logo to reduce gap */}
+    <div className="h-screen w-screen flex flex-col items-center justify-between bg-black text-white relative overflow-hidden">
+      {/* Instructions */}
+      <div className="pt-6 text-center z-10">
+        <h1 className="text-lg font-medium">Take a Selfie</h1>
+      </div>
 
-      {/* Main Content */}
-      <div className="flex-1 flex flex-col justify-center p-0.5 min-h-0 overflow-hidden">
-        {/* Logo at top center inside main content */}
-        <div className="flex justify-center mb-2">
-          <img className="h-6" src="https://www.idmerit.com/wp-content/themes/idmerit/images/idmerit-logo.svg" alt="IDMerit Logo" />
-        </div>
-        <div className="w-full max-w-xs mx-auto">
-          <div className="bg-white border border-gray-200 rounded-xl overflow-hidden">
-            {/* Title */}
-            <div className="bg-blue-600 px-3 py-2 text-center">
-              <Camera className="w-5 h-5 mx-auto mb-1 text-white" />
-              <h1 className="text-sm font-semibold text-white mb-0.5">Take Your Selfie</h1>
-              <p className="text-blue-100 text-[10px]">Position your face within the oval frame</p>
+      {/* Video & overlay */}
+      <div className="relative w-full flex-1 flex items-center justify-center">
+        {!capturedImage ? (
+          <>
+            <video
+              ref={videoRef}
+              autoPlay
+              playsInline
+              muted
+              className="absolute w-full h-full object-cover"
+              style={{ transform: 'scaleX(-1)' }}
+            />
+            {/* Oval CSS overlay */}
+            <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none z-10">
+              <div className="text-sm mb-2 text-white/80">Position your face fully within the frame</div>
+              <div
+                className="w-80 h-[400px] rounded-[40%/50%]"
+                style={{
+                  backgroundColor: 'transparent',
+                  boxShadow: '0 0 0 9999px rgba(0, 0, 0, 0.6)',
+                  WebkitBoxShadow: '0 0 0 9999px rgba(0, 0, 0, 0.6)',
+                }}
+              />
             </div>
-
-            {/* Camera Feed */}
-            <div className="p-2">
-              <div className="relative bg-gray-900 rounded-lg overflow-hidden aspect-[3/4] mb-2">
-                {!capturedImage ? (
-                  <>
-                    <video
-                      ref={videoRef}
-                      autoPlay
-                      playsInline
-                      muted
-                      className="w-full h-full object-cover"
-                      style={{ transform: 'scaleX(-1)' }}
-                    />
-                    <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                      <div className="border-2 border-white/60 rounded-full w-60 h-80" />
-                    </div>
-
-                    {isLoading && (
-                      <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
-                        <div className="animate-spin rounded-full h-6 w-6 border-2 border-white border-t-transparent"></div>
-                      </div>
-                    )}
-                  </>
-                ) : (
-                  <img src={capturedImage.url} alt="Captured selfie" className="w-full h-full object-cover" />
-                )}
-              </div>
-
-              {uploadError && (
-                <div className="bg-red-50 border border-red-200 text-red-600 px-2 py-1 rounded text-[11px] mb-2">
-                  {uploadError}
-                </div>
-              )}
-
-              {/* Buttons */}
-              <div className="space-y-1">
-                {!capturedImage ? (
-                  <button
-                    onClick={handleCapture}
-                    disabled={!isStreaming || isCapturing}
-                    className="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 text-white font-medium py-2 px-3 rounded-md transition-all duration-200 flex items-center justify-center gap-1 text-xs"
-                  >
-                    {isCapturing ? (
-                      <>
-                        <div className="animate-spin rounded-full h-3 w-3 border border-white border-t-transparent"></div>
-                        Capturing...
-                      </>
-                    ) : (
-                      <>
-                        <Camera className="w-3 h-3" />
-                        Take Selfie
-                      </>
-                    )}
-                  </button>
-                ) : (
-                  <button
-                    onClick={handleRetake}
-                    className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-3 rounded-md transition-all duration-200 text-xs"
-                  >
-                    Retake Photo
-                  </button>
-                )}
-              </div>
-              {/* Footer logo with text just below the Take Selfie button */}
-              <div className="flex justify-center items-center gap-1 mt-2">
-                <span className="text-[10px] text-gray-500">Powered by</span>
-                <img className="h-6" src="https://www.idmerit.com/wp-content/themes/idmerit/images/idmerit-logo.svg" alt="IDMerit Logo" />
-              </div>
-            </div>
-          </div>
-        </div>
+          </>
+        ) : (
+          <img
+            src={capturedImage.url}
+            alt="Captured selfie"
+            className="w-full h-full object-cover"
+          />
+        )}
       </div>
 
       {/* Footer */}
-      <div className="flex-shrink-0 bg-white border-t border-gray-200 px-2 py-1">
-        {/* Footer content without logo */}
+      <div className="flex flex-col items-center pb-10 z-10">
+        {uploadError && (
+          <div className="text-red-400 text-xs mb-2 text-center px-4">
+            {uploadError}
+          </div>
+        )}
+        <button
+          onClick={!capturedImage ? handleCapture : handleRetake}
+          disabled={isCapturing || isLoading}
+          className="rounded-full w-16 h-16 bg-white flex items-center justify-center"
+        >
+          <Camera className="text-black w-6 h-6" />
+        </button>
       </div>
-
-      {/* Fixed footer logo at bottom center of main page */}
-      {/* Removed fixed footer logo as per user request */}
     </div>
   );
 };
