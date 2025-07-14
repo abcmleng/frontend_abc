@@ -141,7 +141,7 @@ export const BarcodeScanner: React.FC<BarcodeScannerProps> = ({ onScan, onNext, 
           src="https://www.idmerit.com/wp-content/themes/idmerit/images/idmerit-logo.svg"
           alt="IDMerit Logo"
         />
-        <h1 className="text-black text-base font-semibold mt-2">Scan Barcode</h1>
+        <h1 className="text-black text-base font-semibold mt-2">Capture Barcode</h1>
       </div>
 
       <div className="flex-1 flex flex-col justify-between p-3">
@@ -198,7 +198,7 @@ export const BarcodeScanner: React.FC<BarcodeScannerProps> = ({ onScan, onNext, 
       {(isScanning || isLoading) && (
         <div className="absolute inset-0 bg-black bg-opacity-50 z-50 flex flex-col items-center justify-center">
           <div className="animate-spin rounded-full h-10 w-10 border-4 border-white border-t-transparent mb-3"></div>
-          <p className="text-white text-sm">{isScanning ? 'Scanning...' : 'Loading camera...'}</p>
+          <p className="text-white text-sm">{isScanning ? 'capturing...' : 'Loading camera...'}</p>
         </div>
       )}
     </div>

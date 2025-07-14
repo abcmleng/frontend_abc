@@ -108,7 +108,7 @@ export const MRZScanner: React.FC<MRZScannerProps> = ({ onScan, onNext, verifica
         <div className="w-full max-w-md">
           <div className="text-center mb-4">
             <Scan className="mx-auto text-blue-600 mb-1" size={32} />
-            <h1 className="text-lg font-semibold text-gray-900">Scan MRZ Code</h1>
+            <h1 className="text-lg font-semibold text-gray-900">Capture MRZ Code</h1>
             <p className="text-sm text-gray-500">Align the MRZ at the bottom of the frame</p>
           </div>
 
@@ -116,7 +116,7 @@ export const MRZScanner: React.FC<MRZScannerProps> = ({ onScan, onNext, verifica
             <video ref={videoRef} autoPlay playsInline muted className="w-full h-full object-cover" />
             <div className="absolute inset-0 flex items-end justify-center pb-4">
               <div className="w-64 h-12 border-2 border-white/80 rounded-md flex items-center justify-center">
-                <p className="text-xs text-white">MRZ Scan Zone</p>
+                <p className="text-xs text-white">MRZ Capture Zone</p>
               </div>
             </div>
 
@@ -124,7 +124,7 @@ export const MRZScanner: React.FC<MRZScannerProps> = ({ onScan, onNext, verifica
               <div className="absolute inset-0 bg-black/60 flex items-center justify-center">
                 <div className="text-center text-white">
                   <div className="animate-spin h-8 w-8 border-4 border-white border-t-transparent rounded-full mb-2 mx-auto"></div>
-                  <p className="text-sm">{isScanning ? 'Scanning...' : 'Loading camera...'}</p>
+                  <p className="text-sm">{isScanning ? 'capturing...' : 'Loading camera...'}</p>
                 </div>
               </div>
             )}
