@@ -21,7 +21,7 @@ export const ThankYou: React.FC<ThankYouProps> = ({ onNewTransaction }) => {
       <div className="flex-grow flex flex-col items-center justify-top mt-[30px]">
         <h1 className="text-3xl font-semibold text-black mb-2">Thank you!</h1>
         <p className="text-xl text-gray-600 mb-6">Your information has been uploaded.</p>
-      </div> {/* ← This closing div was missing */}
+      </div>
 
       {/* Footer */}
       <div className="absolute bottom-4 left-0 w-full flex justify-center text-xs text-gray-400">
