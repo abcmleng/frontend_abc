@@ -103,26 +103,11 @@ export const DocumentBackCapture: React.FC<DocumentBackCaptureProps> = ({
       <div className="h-screen flex flex-col bg-white">
         <div className="flex-1 flex items-center justify-center p-3">
           <div className="w-full max-w-md bg-white border border-gray-200 rounded-2xl p-4">
-            <div className="border-b border-gray-200 pb-2 mb-4 flex justify-center">
-              <img
-                className="h-6"
-                src="https://www.idmerit.com/wp-content/themes/idmerit/images/idmerit-logo.svg"
-                alt="IDMerit"
-              />
-            </div>
             <ErrorPage
               error={captureError}
               onRetry={handleRetake}
               onBack={handleRetake}
             />
-            <div className="border-t border-gray-200 pt-2 mt-4 flex justify-center items-center gap-2">
-              <span className="text-xs text-gray-500">Powered by</span>
-              <img
-                className="h-4"
-                src="https://www.idmerit.com/wp-content/themes/idmerit/images/idmerit-logo.svg"
-                alt="IDMerit"
-              />
-            </div>
           </div>
         </div>
       </div>
@@ -131,15 +116,7 @@ export const DocumentBackCapture: React.FC<DocumentBackCaptureProps> = ({
 
   return (
     <div className="relative h-screen flex flex-col bg-white">
-      {/* Header */}
-      <div className="bg-white px-4 py-3 border-b border-gray-200">
-        <div className="flex justify-center">
-          <img
-            className="h-6"
-            src="https://www.idmerit.com/wp-content/themes/idmerit/images/idmerit-logo.svg"
-            alt="IDMerit Logo"
-          />
-        </div>
+      <div className="bg-white px-4 py-3 border-gray-200">
         <h1 className="text-black text-center mt-2 text-base font-semibold">
           Document Back Side
         </h1>
@@ -200,16 +177,6 @@ export const DocumentBackCapture: React.FC<DocumentBackCaptureProps> = ({
             </div>
           )}
         </div>
-      </div>
-
-      {/* Footer */}
-      <div className="flex-shrink-0 bg-white border-t border-gray-200 px-4 py-3 flex justify-center items-center gap-2">
-        <span className="text-xs text-gray-500">Powered by</span>
-        <img
-          className="h-4"
-          src="https://www.idmerit.com/wp-content/themes/idmerit/images/idmerit-logo.svg"
-          alt="IDMerit Logo"
-        />
       </div>
 
       {/* Processing overlay */}

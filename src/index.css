@@ -60,3 +60,12 @@ html, body {
 .border-3 {
   border-width: 3px;
 }
+
+
+.full-screen{height: 100%; width: 100%; text-align: center;}
+.main-container {height: calc(100vh - 190px); overflow: auto;}
+.footer {position: absolute; bottom: 180px; left: 0; right: 0; margin: 0 auto; text-align: center;}
+
+@media (max-width: 767px) {
+  .footer {bottom: 70px;}
+}

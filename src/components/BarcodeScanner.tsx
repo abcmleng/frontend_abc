@@ -135,12 +135,7 @@ export const BarcodeScanner: React.FC<BarcodeScannerProps> = ({ onScan, onNext, 
 
   return (
     <div className="relative h-screen flex flex-col bg-white">
-      <div className="flex-shrink-0 bg-white px-4 py-3 border-b border-gray-200 text-center">
-        <img
-          className="h-6 mx-auto"
-          src="https://www.idmerit.com/wp-content/themes/idmerit/images/idmerit-logo.svg"
-          alt="IDMerit Logo"
-        />
+      <div className="flex-shrink-0 bg-white px-4 py-3 border-gray-200 text-center">
         <h1 className="text-black text-base font-semibold mt-2">Capture Barcode</h1>
       </div>
 
@@ -162,7 +157,7 @@ export const BarcodeScanner: React.FC<BarcodeScannerProps> = ({ onScan, onNext, 
           </div>
 
           {/* Capture Button */}
-          <div className="flex justify-center mb-4">
+          <div className="flex justify-center mt-5 mb-4">
             <button
               onClick={handleScan}
               disabled={!isStreaming || isScanning}
@@ -186,14 +181,6 @@ export const BarcodeScanner: React.FC<BarcodeScannerProps> = ({ onScan, onNext, 
         </div>
       </div>
 
-      <div className="flex-shrink-0 bg-white border-t border-gray-200 px-4 py-3 text-center">
-        <span className="text-xs text-gray-500">Powered by</span>
-        <img
-          className="h-4 inline-block ml-1"
-          src="https://www.idmerit.com/wp-content/themes/idmerit/images/idmerit-logo.svg"
-          alt="IDMerit Logo"
-        />
-      </div>
 
       {(isScanning || isLoading) && (
         <div className="absolute inset-0 bg-black bg-opacity-50 z-50 flex flex-col items-center justify-center">

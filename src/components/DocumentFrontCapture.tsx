@@ -143,15 +143,6 @@ export const DocumentFrontCapture: React.FC<DocumentFrontCaptureProps> = ({
       <div className="h-screen flex flex-col bg-white">
         <div className="flex-1 flex items-center justify-center p-3 min-h-0">
           <div className="w-full max-w-md bg-white border border-gray-200 rounded-2xl p-4">
-            <div className="flex-shrink-0 bg-white border-b border-gray-200 px-4 py-2">
-              <div className="flex justify-center">
-                <img
-                  className="h-6"
-                  src="https://www.idmerit.com/wp-content/themes/idmerit/images/idmerit-logo.svg"
-                  alt="IDMerit Logo"
-                />
-              </div>
-            </div>
             <ErrorPage
               error={captureError}
               onRetry={() => {
@@ -165,16 +156,7 @@ export const DocumentFrontCapture: React.FC<DocumentFrontCaptureProps> = ({
                 handleRetake();
               }}
             />
-            <div className="flex-shrink-0 bg-white border-t border-gray-200 px-4 py-2">
-              <div className="flex justify-center items-center gap-2">
-                <span className="text-xs text-gray-500">Powered by</span>
-                <img
-                  className="h-4"
-                  src="https://www.idmerit.com/wp-content/themes/idmerit/images/idmerit-logo.svg"
-                  alt="IDMerit Logo"
-                />
-              </div>
-            </div>
+            
           </div>
         </div>
       </div>
@@ -182,20 +164,10 @@ export const DocumentFrontCapture: React.FC<DocumentFrontCaptureProps> = ({
   }
 
   return (
-    <div className="relative h-screen flex flex-col bg-white">
-      {/* Header */}
-      <div className="flex-shrink-0 bg-white border-b border-gray-200 px-4 py-3">
-        <div className="flex justify-center">
-          <img
-            className="h-6"
-            src="https://www.idmerit.com/wp-content/themes/idmerit/images/idmerit-logo.svg"
-            alt="IDMerit Logo"
-          />
-        </div>
+    <div className="mt-5 relative h-screen flex flex-col bg-white">
         <h1 className="text-black text-center mt-2 text-base font-semibold">
           Document Front Side
         </h1>
-      </div>
 
       {/* Main Content */}
       <div className="flex-1 flex flex-col justify-between p-3 min-h-0 overflow-hidden">
@@ -253,15 +225,6 @@ export const DocumentFrontCapture: React.FC<DocumentFrontCaptureProps> = ({
         </div>
       </div>
 
-      {/* Footer */}
-      <div className="flex-shrink-0 bg-white border-t border-gray-200 px-4 py-3 flex justify-center items-center gap-2">
-        <span className="text-xs text-gray-500">Powered by</span>
-        <img
-          className="h-4"
-          src="https://www.idmerit.com/wp-content/themes/idmerit/images/idmerit-logo.svg"
-          alt="IDMerit Logo"
-        />
-      </div>
 
       {/* Loading Overlay after capture */}
       {(isCapturing || isUploading) && (

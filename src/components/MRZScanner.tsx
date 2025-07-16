@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Scan } from 'lucide-react';
+import { Camera } from 'lucide-react';
 import { useCamera } from '../hooks/useCamera';
 import { kycApiService } from '../services/kycApi';
 import { ErrorPage, CaptureError } from './ErrorPage';
@@ -12,7 +12,14 @@ interface MRZScannerProps {
 }
 
 export const MRZScanner: React.FC<MRZScannerProps> = ({ onScan, onNext, verificationId, onError }) => {
-  const { videoRef, isStreaming, isLoading, error, startCamera, stopCamera } = useCamera();
+  const {
+    videoRef,
+    isStreaming,
+    isLoading,
+    error,
+    startCamera,
+    stopCamera
+  } = useCamera();
 
   const [scannedData, setScannedData] = useState<string | null>(null);
   const [ocrStatus, setOcrStatus] = useState<string | null>(null);
@@ -34,23 +41,31 @@ export const MRZScanner: React.FC<MRZScannerProps> = ({ onScan, onNext, verifica
       return;
     }
 
+    const video = videoRef.current;
     const canvas = document.createElement('canvas');
-    canvas.width = videoRef.current.videoWidth;
-    canvas.height = videoRef.current.videoHeight;
+    canvas.width = video.videoWidth;
+    canvas.height = video.videoHeight;
     const ctx = canvas.getContext('2d');
+
     if (!ctx) {
       const msg = 'Canvas context not available';
       handleFailure('processing', msg);
       return;
     }
 
-    ctx.drawImage(videoRef.current, 0, 0, canvas.width, canvas.height);
+    ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+
     canvas.toBlob(async (blob) => {
       if (!blob) {
         const msg = 'Failed to capture image';
         handleFailure('processing', msg);
         return;
       }
+
+      setUploadError(null);
+      setOcrStatus(null);
+      setScannedData(null);
+      setCaptureError(null);
 
       try {
         const res = await kycApiService.processMRZDocument(blob, verificationId);
@@ -95,65 +110,65 @@ export const MRZScanner: React.FC<MRZScannerProps> = ({ onScan, onNext, verifica
   };
 
   if (captureError) {
-    return <ErrorPage error={captureError} onRetry={handleRetry} onBack={handleRetry} />;
+    return (
+      <ErrorPage error={captureError} onRetry={handleRetry} onBack={handleRetry} />
+    );
   }
 
   return (
-    <div className="h-screen flex flex-col bg-white">
-      <div className="flex justify-center border-b border-gray-200 py-3">
-        <img className="h-6" src="https://www.idmerit.com/wp-content/themes/idmerit/images/idmerit-logo.svg" alt="IDMerit Logo" />
+    <div className="relative h-screen flex flex-col bg-white">
+      <div className="flex-shrink-0 bg-white px-4 py-3 border-gray-200 text-center">
+        <h1 className="text-black text-base font-semibold mt-2">Capture MRZ</h1>
       </div>
 
-      <div className="flex-1 flex flex-col justify-between items-center px-4 py-6">
-        <div className="w-full max-w-md">
-          <div className="text-center mb-4">
-            <Scan className="mx-auto text-blue-600 mb-1" size={32} />
-            <h1 className="text-lg font-semibold text-gray-900">Capture MRZ Code</h1>
-            <p className="text-sm text-gray-500">Align the MRZ at the bottom of the frame</p>
-          </div>
-
-          <div className="relative bg-gray-900 rounded-xl overflow-hidden aspect-[4/3] mb-4">
-            <video ref={videoRef} autoPlay playsInline muted className="w-full h-full object-cover" />
-            <div className="absolute inset-0 flex items-end justify-center pb-4">
-              <div className="w-64 h-12 border-2 border-white/80 rounded-md flex items-center justify-center">
+      <div className="flex-1 flex flex-col justify-between p-3">
+        <div className="w-full max-w-md mx-auto flex flex-col flex-grow">
+          <div className="relative flex-grow bg-black rounded-xl overflow-hidden aspect-[4/3] mb-3">
+            <video
+              ref={videoRef}
+              autoPlay
+              playsInline
+              muted
+              className="w-full h-full object-cover"
+            />
+            <div className="absolute inset-0 flex items-end justify-center pb-4 pointer-events-none">
+              <div className="w-80 h-20 border-2 border-white/80 rounded-md flex items-center justify-center">
                 <p className="text-xs text-white">MRZ Capture Zone</p>
               </div>
             </div>
-
-            {(isLoading || isScanning) && (
-              <div className="absolute inset-0 bg-black/60 flex items-center justify-center">
-                <div className="text-center text-white">
-                  <div className="animate-spin h-8 w-8 border-4 border-white border-t-transparent rounded-full mb-2 mx-auto"></div>
-                  <p className="text-sm">{isScanning ? 'capturing...' : 'Loading camera...'}</p>
-                </div>
-              </div>
-            )}
           </div>
 
-          <button
-            onClick={handleScan}
-            disabled={!isStreaming || isScanning}
-            className="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 text-white font-semibold py-3 rounded-lg flex items-center justify-center gap-2"
-          >
-            {isScanning ? (
-              <>
-                <div className="animate-spin h-4 w-4 border-2 border-white border-t-transparent rounded-full" />
-                Scanning...
-              </>
-            ) : (
-              <>
-                <Scan size={18} />
-                Capture MRZ
-              </>
-            )}
-          </button>
+          {/* Capture Button */}
+          <div className="flex justify-center mt-5 mb-4">
+            <button
+              onClick={handleScan}
+              disabled={!isStreaming || isScanning}
+              className="w-16 h-16 rounded-full bg-white border border-gray-700 flex items-center justify-center hover:bg-gray-200 disabled:opacity-50 transition"
+            >
+              <Camera className="w-8 h-8 text-gray-800" />
+            </button>
+          </div>
+
+          {ocrStatus === 'SUCCESSFUL' && (
+            <div className="bg-green-100 border border-green-300 text-green-800 px-3 py-2 rounded-lg text-sm text-center">
+              MRZ Scan: SUCCESSFUL
+            </div>
+          )}
+
+          {uploadError && (
+            <div className="bg-red-100 border border-red-300 text-red-700 px-3 py-2 rounded-lg text-sm text-center">
+              {uploadError}
+            </div>
+          )}
         </div>
       </div>
 
-      <div className="flex justify-center items-center gap-2 border-t border-gray-200 py-3 text-xs text-gray-500">
-        <span>Powered by</span>
-        <img className="h-4" src="https://www.idmerit.com/wp-content/themes/idmerit/images/idmerit-logo.svg" alt="IDMerit Logo" />
-      </div>
+      {(isScanning || isLoading) && (
+        <div className="absolute inset-0 bg-black bg-opacity-50 z-50 flex flex-col items-center justify-center">
+          <div className="animate-spin rounded-full h-10 w-10 border-4 border-white border-t-transparent mb-3"></div>
+          <p className="text-white text-sm">{isScanning ? 'capturing...' : 'Loading camera...'}</p>
+        </div>
+      )}
     </div>
   );
 };

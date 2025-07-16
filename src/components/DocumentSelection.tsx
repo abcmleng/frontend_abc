@@ -47,7 +47,7 @@ export const DocumentSelection: React.FC<DocumentSelectionProps> = ({
   };
 
   return (
-    <div className="h-screen flex flex-col bg-white">
+    <div className="full-screen">
       {/* Main Content */}
       <div className="flex-1 flex flex-col justify-center p-3 min-h-0 overflow-hidden">
         <div className="w-full max-w-md mx-auto flex flex-col justify-between h-full">
@@ -88,33 +88,28 @@ export const DocumentSelection: React.FC<DocumentSelectionProps> = ({
               ))
             )}
           </div>
+  
+        </div>
+      </div>
+      <div className="footer">
 
           {/* Continue Button */}
           <div className="mt-10">
             <button
               onClick={onNext}
-              disabled={!selectedDocumentType}
-              className={`w-full px-4 py-3 font-semibold rounded-md transition ${
-                selectedDocumentType
+              disabled={!selectedCountryCode}
+              className={`px-4 py-3 font-semibold rounded-md transition ${
+                selectedCountryCode
                   ? 'bg-blue-800 text-white hover:bg-blue-900'
                   : 'bg-gray-300 text-gray-600 cursor-not-allowed'
               }`}
             >
               Continue
             </button>
-          </div>
 
-          {/* Footer */}
-          <div className="flex justify-center items-center gap-1 mt-10 mb-4 text-xs text-gray-500">
-            <span>Powered by</span>
-            <img
-              className="h-4"
-              src="https://www.idmerit.com/wp-content/themes/idmerit/images/idmerit-logo.svg"
-              alt="IDMerit Logo"
-            />
           </div>
+           <p className="mt-8 text-xs text-gray-400">Powered by <img src="https://www.idmerit.com/wp-content/themes/idmerit/images/idmerit-logo.svg" alt="IDMerit" className="inline h-4 ml-1" /></p>
         </div>
-      </div>
     </div>
   );
 };
