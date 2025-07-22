@@ -1,55 +1,37 @@
-
-import React, { useState, useEffect } from 'react';
-import { SelfieCapture } from './SelfieCapture';
-import { DocumentFrontCapture } from './DocumentFrontCapture';
-import { DocumentBackCapture } from './DocumentBackCapture';
-import { MRZScanner } from './MRZScanner';
-import { BarcodeScanner } from './BarcodeScanner';
-import { ThankYou } from './ThankYou';
-import { CountrySelection } from './CountrySelection';
-import { DocumentSelection } from './DocumentSelection';
+import React, { useState, useEffect, Suspense, lazy } from 'react';
 import metadata from '../helper/metadata.json';
-import { KYCData, CapturedImage, ProcessingStatus } from '../types/kyc';
+import { KYCData, CapturedImage } from '../types/kyc';
 import { kycApiService } from '../services/kycApi';
 import { useFlowConfig } from '../hooks/useFlowConfig';
 
-interface MetadataItem {
-  id: number;
-  barcode: string;
-  country: string;
-  country_code: string;
-  date_format: string;
-  type: string;
-  alternative_text: string;
-  is_live: number;
-  engine_language: number;
-  is_country_european: number;
-  version: number;
-  tenant_name: string;
-  server_key: string;
-}
-
-// Barcode and MRZ classification
 const MRZ_TYPES = ['TD1','TD2','TD3','TD1 F','TD2 F','TD2 B','TD3 B','TD3 F'];
 const BARCODE_TYPES = ['PDF417','PDF417 B','PDF417 F','QR B','QR F','QR AADHAAR','ITF B','ITF F'];
 
-const COMPONENT_MAP: { [key: string]: React.FC<any> } = {
-  selfie: SelfieCapture,
-  country_selection: CountrySelection,
-  document_type: DocumentSelection,
-  'document-front': DocumentFrontCapture,
-  'document-back': DocumentBackCapture,
-  Scanning: () => null, // Will handle scanning separately
-  complete: ThankYou,
+// Dynamic imports for components
+const componentImportMap: { [key: string]: React.LazyExoticComponent<React.FC<any>> } = {
+  verify: lazy(() => import('./VerifyPage').then(module => ({ default: module.VerifyPage }))),
+  selfiepage: lazy(() => import('./SelfiePage').then(module => ({ default: module.SelfiePage }))),
+  selfiecapture: lazy(() => import('./SelfieCapture').then(module => ({ default: module.SelfieCapture }))),
+  country_selection: lazy(() => import('./CountrySelection').then(module => ({ default: module.CountrySelection }))),
+  document_type: lazy(() => import('./DocumentSelection').then(module => ({ default: module.DocumentSelection }))),
+  captureidfront: lazy(() => import('./CaptureIdFront').then(module => ({ default: module.CaptureIdFront }))),
+  'document-front': lazy(() => import('./DocumentFrontCapture').then(module => ({ default: module.DocumentFrontCapture }))),
+  captureidback: lazy(() => import('./CaptureIdBack').then(module => ({ default: module.CaptureIdBack }))),
+  'document-back': lazy(() => import('./DocumentBackCapture').then(module => ({ default: module.DocumentBackCapture }))),
+  thankyou: lazy(() => import('./ThankYou').then(module => ({ default: module.ThankYou }))),
+  mrzpage: lazy(() => import('./MRZPage').then(module => ({ default: module.MRZPage }))),
+  barcodescanner: lazy(() => import('./BarcodeScanner').then(module => ({ default: module.BarcodeScanner }))),
 };
 
 export const KYCFlow: React.FC<{ userId: string }> = ({ userId }) => {
   const { flowConfig, loading: flowLoading, error: flowError } = useFlowConfig(userId);
+
   const [currentStep, setCurrentStep] = useState(0);
   const [selectedCountryCode, setSelectedCountryCode] = useState<string | null>(null);
   const [selectedDocumentType, setSelectedDocumentType] = useState<string | null>(null);
   const [scannerType, setScannerType] = useState<'mrz' | 'barcode' | null>(null);
   const [error, setError] = useState<Error | null>(null);
+
   const [kycData, setKycData] = useState<KYCData>({
     verificationId: `KYC-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
     processingStatus: {
@@ -67,14 +49,15 @@ export const KYCFlow: React.FC<{ userId: string }> = ({ userId }) => {
     }
   }, [flowConfig]);
 
+
+  // Detect scanner type based on selected country and document type when on document-front step
   useEffect(() => {
     if (flowConfig.length === 0) return;
+
     const currentStepKey = flowConfig[currentStep];
-    console.log('Current Step:', currentStep, 'Step Key:', currentStepKey);
-    console.log('Flow Config:', flowConfig);
-    if (currentStepKey === 'document-front') {
+    if (currentStepKey.toLowerCase() === 'document-front') {
       if (selectedCountryCode && selectedDocumentType) {
-        const meta = (metadata as MetadataItem[]).find(
+        const meta = (metadata as any[]).find(
           (item) =>
             item.country_code === selectedCountryCode &&
             (item.type.toLowerCase() === selectedDocumentType.toLowerCase() ||
@@ -83,7 +66,6 @@ export const KYCFlow: React.FC<{ userId: string }> = ({ userId }) => {
 
         if (meta) {
           const barcode = meta.barcode.toUpperCase();
-
           if (MRZ_TYPES.includes(barcode)) {
             setScannerType('mrz');
           } else if (BARCODE_TYPES.includes(barcode)) {
@@ -170,7 +152,7 @@ export const KYCFlow: React.FC<{ userId: string }> = ({ userId }) => {
 
       // Skip document-back if document type is 'pp' and current step is document-front
       if (
-        flowConfig[prev] === 'document-front' &&
+        flowConfig[prev].toLowerCase() === 'document-front' &&
         selectedDocumentType?.toLowerCase() === 'pp'
       ) {
         next = prev + 2;
@@ -202,6 +184,7 @@ export const KYCFlow: React.FC<{ userId: string }> = ({ userId }) => {
     });
   };
 
+  // Render only the current step component
   const renderCurrentStep = () => {
     if (flowLoading) {
       return <div>Loading flow configuration...</div>;
@@ -213,74 +196,71 @@ export const KYCFlow: React.FC<{ userId: string }> = ({ userId }) => {
       return <div>No flow configuration available.</div>;
     }
 
-    const currentStepKey = flowConfig[currentStep];
+    const stepKey = flowConfig[currentStep];
+    if (!stepKey) return <div>Invalid step</div>;
 
-    if (currentStepKey === 'Scanning') {
+    if (stepKey.toLowerCase() === 'scanning') {
       if (!kycData || !kycData.verificationId) {
         return <div>Loading verification data...</div>;
       }
-      if (scannerType === 'mrz') {
+
+      const isMRZ = scannerType === 'mrz';
+
+      if (isMRZ) {
+        const MRZPageComponent = componentImportMap['mrzpage'];
         return (
-          <div>
-            <MRZScanner
+          <Suspense fallback={<div>Loading MRZ Scanner...</div>}>
+            <MRZPageComponent
               onScan={handleMRZScan}
               onNext={nextStep}
               verificationId={kycData.verificationId}
+              key="mrz"
             />
-          </div>
-        );
-      } else if (scannerType === 'barcode') {
-        return (
-          <div>
-            <BarcodeScanner
-              onScan={handleMRZScan}
-              onNext={nextStep}
-              verificationId={kycData.verificationId}
-            />
-          </div>
+          </Suspense>
         );
       } else {
-        return <div>Unsupported barcode type for scanning.</div>;
+        const BarcodeScannerComponent = componentImportMap['barcodescanner'];
+        return (
+          <Suspense fallback={<div>Loading Barcode Scanner...</div>}>
+            <BarcodeScannerComponent
+              onScan={handleMRZScan}
+              onNext={nextStep}
+              verificationId={kycData.verificationId}
+              key="barcode"
+            />
+          </Suspense>
+        );
       }
     }
 
-    const StepComponent = COMPONENT_MAP[currentStepKey];
+    const normalizedStepKey = stepKey.toLowerCase();
+    const StepComponent = componentImportMap[normalizedStepKey];
     if (!StepComponent) {
-      return <div>Unsupported step: {currentStepKey}</div>;
+      return <div>Unsupported step: {stepKey}</div>;
     }
-
-    if (currentStepKey === 'complete') {
-      if (!kycData || !kycData.verificationId) {
-        return <div>Loading verification data...</div>;
-      }
-      return (
-        <ThankYou
-          kycData={kycData}
-          onRestart={restartFlow}
-          scannerType={scannerType}
-        />
-      );
-    }
-
+    
     return (
-      <StepComponent
-        selectedCountryCode={selectedCountryCode}
-        selectedDocumentType={selectedDocumentType}
-        onSelectCountryCode={setSelectedCountryCode}
-        onSelectDocumentType={setSelectedDocumentType}
-        onCapture={
-          currentStepKey === 'selfie'
-            ? handleSelfieCapture
-            : currentStepKey === 'document-front'
-            ? handleDocumentFrontCapture
-            : currentStepKey === 'document-back'
-            ? handleDocumentBackCapture
-            : undefined
-        }
-        onNext={nextStep}
-        verificationId={kycData?.verificationId ?? ''}
-        onError={setError}
-      />
+      <Suspense fallback={<div>Loading {stepKey}...</div>}>
+        <StepComponent
+          key={stepKey}
+          selectedCountryCode={selectedCountryCode}
+          selectedDocumentType={selectedDocumentType}
+          onSelectCountryCode={setSelectedCountryCode}
+          onSelectDocumentType={setSelectedDocumentType}
+          onCapture={
+            normalizedStepKey === 'selfie' || normalizedStepKey === 'selfiecapture'
+              ? handleSelfieCapture
+              : normalizedStepKey === 'document-front'
+              ? handleDocumentFrontCapture
+              : normalizedStepKey === 'document-back'
+              ? handleDocumentBackCapture
+              : undefined
+          }
+          onNext={nextStep}
+          verificationId={kycData?.verificationId ?? ''}
+          onError={setError}
+        />
+      </Suspense>
     );
   };
 

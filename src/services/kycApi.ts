@@ -1,3 +1,5 @@
+// src/services/kycApi.ts
+
 export interface KYCApiResponse {
   success: boolean;
   message: string;
@@ -102,7 +104,6 @@ class KYCApiService {
     });
   }
 
-
   // 📄 Document Front/Back
   async processDocument(request: ProcessDocumentRequest): Promise<KYCApiResponse> {
     const formData = new FormData();
@@ -197,7 +198,7 @@ class KYCApiService {
 
 
 
-  // 🔍 OCR (Local Engine)
+  // 🔍 barcode (Local Engine)
   async processBarcodeDocument(image: Blob, uuid: string): Promise<KYCApiResponse> {
     const formData = new FormData();
     const filename = `mrz-${uuid}.jpg`;

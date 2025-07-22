@@ -33,7 +33,7 @@ export const CaptureIdFront: React.FC<CaptureIdFrontProps> = ({ onContinue }) =>
           Continue
         </button>
         
-           <p className="mt-8 text-xs text-gray-400">Powered by <img src="https://www.idmerit.com/wp-content/themes/idmerit/images/idmerit-logo.svg" alt="IDMerit" className="inline h-4 ml-1" /></p>
+          <p className="mt-8 text-xs text-gray-400">Powered by <img src="https://www.idmerit.com/wp-content/themes/idmerit/images/idmerit-logo.svg" alt="IDMerit" className="inline h-4 ml-1" /></p>
         </div>
     </div>
   );

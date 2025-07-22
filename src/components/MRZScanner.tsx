@@ -118,7 +118,7 @@ export const MRZScanner: React.FC<MRZScannerProps> = ({ onScan, onNext, verifica
   return (
     <div className="relative h-screen flex flex-col bg-white">
       <div className="flex-shrink-0 bg-white px-4 py-3 border-gray-200 text-center">
-        <h1 className="text-black text-base font-semibold mt-2">Capture MRZ</h1>
+        <h1 className="text-black text-2xl font-semibold mt-2">Capture MRZ</h1>
       </div>
 
       <div className="flex-1 flex flex-col justify-between p-3">
@@ -131,10 +131,17 @@ export const MRZScanner: React.FC<MRZScannerProps> = ({ onScan, onNext, verifica
               muted
               className="w-full h-full object-cover"
             />
-            <div className="absolute inset-0 flex items-end justify-center pb-4 pointer-events-none">
-              <div className="w-80 h-20 border-2 border-white/80 rounded-md flex items-center justify-center">
-                <p className="text-xs text-white">MRZ Capture Zone</p>
-              </div>
+            <div className="absolute inset-0 flex items-center justify-center pb-4 pointer-events-none">
+            <div className="w-80 h-20 border-2 border-white/40 rounded-md flex flex-col items-center justify-center px-2">
+              <p className="text-white/40 text-[10px] font-mono tracking-widest text-center leading-tight">
+                P&lt;KENKALLAA&lt;&lt;SARAH&lt;MWENDE&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;
+              </p>
+              <p className="text-white/40 text-[10px] font-mono tracking-widest text-center leading-tight mt-1">
+                B000000&lt;&lt;7KEN7005200F180515411050972&lt;&lt;&lt;&lt;&lt;&lt;20
+              </p>
+            </div>
+          </div>
+          <div>
             </div>
           </div>
 

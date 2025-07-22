@@ -42,7 +42,14 @@ export const ErrorPage: React.FC<ErrorPageProps> = ({ error, onRetry }) => {
   console.log('[ErrorPage] Displaying error:', error);
 
   return (
-    <div className="bg-white rounded-2xl p-6 text-center">
+    <div className="bg-white  p-6 text-center">
+      <div className="logo-he">
+          <img
+            src="https://www.idmerit.com/wp-content/themes/idmerit/images/idmerit-logo.svg"
+            alt="IDMerit Logo"
+            className="mx-auto mb-6"
+            style={{ height: 40 }}
+          /></div>
       <div className="flex justify-center mb-4">
         {getErrorIcon(error.type)}
       </div>
@@ -70,6 +77,7 @@ export const ErrorPage: React.FC<ErrorPageProps> = ({ error, onRetry }) => {
       )}
 
       <div className="flex space-x-3">
+        
     
         <button
           onClick={onRetry}
@@ -79,6 +87,10 @@ export const ErrorPage: React.FC<ErrorPageProps> = ({ error, onRetry }) => {
           <span>Try Again</span>
         </button>
       </div>
+      <div className="footer">
+          <p className="mt-8 text-xs text-gray-400">Powered by <img src="https://www.idmerit.com/wp-content/themes/idmerit/images/idmerit-logo.svg" alt="IDMerit" className="inline h-4 ml-1" /></p>
+        </div>
+      
     </div>
   );
 };

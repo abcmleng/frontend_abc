@@ -101,8 +101,8 @@ export const DocumentBackCapture: React.FC<DocumentBackCaptureProps> = ({
   if (captureError) {
     return (
       <div className="h-screen flex flex-col bg-white">
-        <div className="flex-1 flex items-center justify-center p-3">
-          <div className="w-full max-w-md bg-white border border-gray-200 rounded-2xl p-4">
+        <div className="flex flex items-center justify-center p-3">
+          <div className="w-full max-w-md bg-white  p-4">
             <ErrorPage
               error={captureError}
               onRetry={handleRetake}
@@ -137,18 +137,17 @@ export const DocumentBackCapture: React.FC<DocumentBackCaptureProps> = ({
                 />
                 {/* Overlay frame */}
                 <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
-                  <div className="w-60 h-40 border-2 border-white rounded-xl relative mb-4">
-                    <img
-                      src="src/images/camera-bg.png"
-                      alt="Document Frame"
-                      className="absolute inset-0 w-full h-full object-contain"
-                    />
-                  </div>
+                 <div className="w-80 h-52 border-2 border-white rounded-xl relative flex items-center justify-center mb-4">
+                  <img
+                    src="src/images/camera-bg.png"
+                    alt="Document Icon"
+                    className="absolute center"
+                  />
+                </div>
                   <p className="text-white text-center text-sm px-2">
                     Position your document fully within the frame
                   </p>
                 </div>
-
                 {isLoading && (
                   <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
                     <div className="animate-spin rounded-full h-8 w-8 border-4 border-white border-t-transparent"></div>

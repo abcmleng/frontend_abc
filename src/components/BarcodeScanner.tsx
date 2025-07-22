@@ -136,7 +136,7 @@ export const BarcodeScanner: React.FC<BarcodeScannerProps> = ({ onScan, onNext, 
   return (
     <div className="relative h-screen flex flex-col bg-white">
       <div className="flex-shrink-0 bg-white px-4 py-3 border-gray-200 text-center">
-        <h1 className="text-black text-base font-semibold mt-2">Capture Barcode</h1>
+        <h1 className="text-black text-2xl font-semibold mt-2">Capture Barcode</h1>
       </div>
 
       <div className="flex-1 flex flex-col justify-between p-3">

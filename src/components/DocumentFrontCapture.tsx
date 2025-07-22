@@ -137,12 +137,12 @@ export const DocumentFrontCapture: React.FC<DocumentFrontCaptureProps> = ({
       setIsCapturing(false);
     }
   };
-
+  
   if (captureError) {
     return (
-      <div className="h-screen flex flex-col bg-white">
-        <div className="flex-1 flex items-center justify-center p-3 min-h-0">
-          <div className="w-full max-w-md bg-white border border-gray-200 rounded-2xl p-4">
+      <div className="full-screen">
+        <div className="flex flex items-center justify-center p-3 min-h-0">
+          <div className="w-full max-w-md bg-white p-4">
             <ErrorPage
               error={captureError}
               onRetry={() => {
@@ -184,16 +184,16 @@ export const DocumentFrontCapture: React.FC<DocumentFrontCaptureProps> = ({
                   className="w-full h-full object-cover"
                 />
                 <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
-                  <div className="w-60 h-40 border-2 border-white-700 rounded-xl relative flex items-center justify-center mb-4">
-                    <img
-                      src="src/images/camera-bg.png"
-                      alt="Document Icon"
-                      className="absolute center"
-                    />
-                  </div>
-                  <p className="text-white text-center text-sm px-2">
-                    Position your document fully within the frame
-                  </p>
+                <div className="w-80 h-52 border-2 border-white rounded-xl relative flex items-center justify-center mb-4">
+                  <img
+                    src="src/images/camera-bg.png"
+                    alt="Document Icon"
+                    className="absolute center"
+                  />
+                </div>
+                <p className="text-white text-center text-sm px-2">
+                  Position your document fully within the frame
+                </p>
                 </div>
                 {isLoading && (
                   <div className="absolute inset-0 bg-white/50 flex items-center justify-center">

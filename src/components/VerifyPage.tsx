@@ -9,13 +9,14 @@ export const VerifyPage: React.FC<VerifyPageProps> = ({ userId, onStart }) => {
   return (
     <div className="full-screen">
       <div className="main-container">
-        <div className="w-full mt-5 text-center">
+    
           <img
             src="https://www.idmerit.com/wp-content/themes/idmerit/images/idmerit-logo.svg"
             alt="IDMerit Logo"
             className="mx-auto mb-6"
             style={{ height: 40 }}
           />
+          <div className='w-full mt-5 text-center'>
           <h1 className="text-2xl font-semibold mb-4">Verify your identity</h1>
           <p className="mb-6 text-gray-700">
             It will only take a few seconds
@@ -38,6 +39,7 @@ export const VerifyPage: React.FC<VerifyPageProps> = ({ userId, onStart }) => {
             Let's Verify
           </button>
           <p className="mt-8 text-xs text-gray-400">Powered by <img src="https://www.idmerit.com/wp-content/themes/idmerit/images/idmerit-logo.svg" alt="IDMerit" className="inline h-4 ml-1" /></p>
+
         </div>
     </div>
   );

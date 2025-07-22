@@ -61,9 +61,13 @@ html, body {
   border-width: 3px;
 }
 
+.logo-he{
+    align-items: center;
+    margin-top: 10px;
+}
 
-.full-screen{height: 100%; width: 100%; text-align: center;}
-.main-container {height: calc(100vh - 190px); overflow: auto;}
+.full-screen{height: 100%; width: 100%; text-align: center; align-items: center;margin-top: 15px;}
+.main-container {height: calc(100vh - 190px); overflow: auto;margin-top: 70px;}
 .footer {position: absolute; bottom: 180px; left: 0; right: 0; margin: 0 auto; text-align: center;}
 
 @media (max-width: 767px) {

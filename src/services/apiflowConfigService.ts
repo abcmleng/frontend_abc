@@ -24,3 +24,4 @@ class KycApi {
 }
 
 export default new KycApi();
+
