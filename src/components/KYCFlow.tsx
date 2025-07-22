@@ -43,42 +43,60 @@ export const KYCFlow: React.FC<{ userId: string }> = ({ userId }) => {
     apiResponses: {},
   });
 
+  const [includeBackSide, setIncludeBackSide] = React.useState(true);
+  const [filteredFlow, setFilteredFlow] = React.useState<string[]>([]);
+
   useEffect(() => {
-    if (flowConfig.length > 0) {
-      setCurrentStep(0);
-    }
-  }, [flowConfig]);
+    if (selectedCountryCode && selectedDocumentType) {
+      const meta = (metadata as any[]).find(
+        (item) =>
+          item.country_code === selectedCountryCode &&
+          (item.type.toLowerCase() === selectedDocumentType.toLowerCase() ||
+           item.alternative_text.toLowerCase() === selectedDocumentType.toLowerCase())
+      );
 
-
-  // Detect scanner type based on selected country and document type when on document-front step
-  useEffect(() => {
-    if (flowConfig.length === 0) return;
-
-    const currentStepKey = flowConfig[currentStep];
-    if (currentStepKey.toLowerCase() === 'document-front') {
-      if (selectedCountryCode && selectedDocumentType) {
-        const meta = (metadata as any[]).find(
-          (item) =>
-            item.country_code === selectedCountryCode &&
-            (item.type.toLowerCase() === selectedDocumentType.toLowerCase() ||
-             item.alternative_text.toLowerCase() === selectedDocumentType.toLowerCase())
-        );
-
-        if (meta) {
-          const barcode = meta.barcode.toUpperCase();
-          if (MRZ_TYPES.includes(barcode)) {
-            setScannerType('mrz');
-          } else if (BARCODE_TYPES.includes(barcode)) {
-            setScannerType('barcode');
-          } else {
-            setScannerType(null);
-          }
+      if (meta) {
+        const barcode = meta.barcode.toUpperCase();
+        if (MRZ_TYPES.includes(barcode)) {
+          setScannerType('mrz');
+        } else if (BARCODE_TYPES.includes(barcode)) {
+          setScannerType('barcode');
         } else {
           setScannerType(null);
         }
+
+        if (barcode.includes('B')) {
+          setIncludeBackSide(true);
+        } else {
+          setIncludeBackSide(false);
+        }
+      } else {
+        setScannerType(null);
+        setIncludeBackSide(true);
       }
     }
   }, [currentStep, selectedCountryCode, selectedDocumentType, flowConfig]);
+
+  useEffect(() => {
+    if (flowConfig.length > 0) {
+      let filteredFlowConfig = flowConfig;
+
+      if (!includeBackSide) {
+        filteredFlowConfig = flowConfig.filter(
+          (step) => !['document-back', 'captureidback'].includes(step.toLowerCase())
+        );
+      }
+
+      setFilteredFlow(filteredFlowConfig);
+      setCurrentStep(0);
+    }
+  }, [includeBackSide, flowConfig]);
+
+  useEffect(() => {
+    if (filteredFlow.length > 0) {
+      setCurrentStep(0);
+    }
+  }, [filteredFlow]);
 
   const handleSelfieCapture = (image: CapturedImage) => {
     setKycData((prev) => ({
@@ -146,19 +164,19 @@ export const KYCFlow: React.FC<{ userId: string }> = ({ userId }) => {
 
   const nextStep = () => {
     setCurrentStep((prev) => {
-      if (flowConfig.length === 0) return prev;
+      if (filteredFlow.length === 0) return prev;
 
       let next = prev + 1;
 
       // Skip document-back if document type is 'pp' and current step is document-front
       if (
-        flowConfig[prev].toLowerCase() === 'document-front' &&
+        filteredFlow[prev].toLowerCase() === 'document-front' &&
         selectedDocumentType?.toLowerCase() === 'pp'
       ) {
         next = prev + 2;
       }
 
-      next = Math.min(next, flowConfig.length - 1);
+      next = Math.min(next, filteredFlow.length - 1);
       return next;
     });
   };

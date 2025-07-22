@@ -116,32 +116,67 @@ function App() {
     }
   }, [selectedCountryCode, selectedDocumentType]);
 
+  const [includeBackSide, setIncludeBackSide] = useState(true);
+
+  useEffect(() => {
+    if (selectedCountryCode && selectedDocumentType) {
+      const meta = (metadata as any[]).find(
+        (item) =>
+          item.country_code === selectedCountryCode &&
+          (item.type.toLowerCase() === selectedDocumentType.toLowerCase() ||
+           item.alternative_text.toLowerCase() === selectedDocumentType.toLowerCase())
+      );
+
+      if (meta) {
+        const barcode = meta.barcode.toUpperCase();
+        if (MRZ_TYPES.includes(barcode)) {
+          setUseMRZ(true);
+        } else if (BARCODE_TYPES.includes(barcode)) {
+          setUseMRZ(false);
+        } else {
+          setUseMRZ(true);
+        }
+
+        if (barcode.includes('B')) {
+          setIncludeBackSide(true);
+        } else {
+          setIncludeBackSide(false);
+        }
+      } else {
+        setUseMRZ(true);
+        setIncludeBackSide(true);
+      }
+    }
+  }, [selectedCountryCode, selectedDocumentType]);
+
   useEffect(() => {
     if (flowConfig.length > 0) {
-      // Extract initial steps before scanning
-      const initialSteps = flowConfig.filter(
+      let initialSteps = flowConfig.filter(
         (step) => !['scanning', 'mrzpage', 'barcodepage', 'mrz', 'barcode', 'thankyou'].includes(step.toLowerCase())
       );
 
-      // Append scanning and thankyou steps based on useMRZ
+      if (!includeBackSide) {
+        initialSteps = initialSteps.filter(
+          (step) => !['document-back', 'captureidback'].includes(step.toLowerCase())
+        );
+      }
+
       const scanningSteps = useMRZ
         ? ['mrzpage', 'mrz', 'thankyou']
         : ['barcodepage', 'barcode', 'thankyou'];
 
       const newFlow = [...initialSteps, ...scanningSteps];
-      console.log('[App] Constructed flow:', newFlow);
 
       setFlow(newFlow);
 
       setCurrentStepIndex((prevIndex) => {
-        // Reset to 0 only if current index is beyond initial steps length or flow length changed
         if (prevIndex >= initialSteps.length || prevIndex >= newFlow.length) {
           return 0;
         }
         return prevIndex;
       });
     }
-  }, [flowConfig, useMRZ]);
+  }, [flowConfig, useMRZ, includeBackSide]);
 
   useEffect(() => {
     console.log('[App] Current step index:', currentStepIndex, 'Current step:', flow[currentStepIndex]);
