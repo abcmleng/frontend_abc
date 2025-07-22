@@ -223,23 +223,6 @@ function App() {
       return <div>Invalid step</div>;
     }
 
-    if (currentStep.toLowerCase() === 'scanning') {
-      if (useMRZ) {
-        const MRZPageComponent = componentImportMap['mrzpage'];
-        return (
-          <Suspense fallback={<div>Loading MRZ Scanner...</div>}>
-            <MRZPageComponent onNext={goToNextStep} />
-          </Suspense>
-        );
-      } else {
-        const BarcodePageComponent = componentImportMap['barcodepage'];
-        return (
-          <Suspense fallback={<div>Loading Barcode Scanner...</div>}>
-            <BarcodePageComponent onNext={goToNextStep} />
-          </Suspense>
-        );
-      }
-    }
 
     const normalizedStepKey = currentStep.toLowerCase();
     const StepComponent = componentImportMap[normalizedStepKey];
@@ -258,7 +241,6 @@ function App() {
       );
     }
 
-    // Map step keys to their expected next handler prop name
     const nextHandlerPropMap: { [key: string]: string } = {
       captureidfront: 'onContinue',
       captureidback: 'onContinue',

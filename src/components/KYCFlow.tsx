@@ -23,6 +23,7 @@ const componentImportMap: { [key: string]: React.LazyExoticComponent<React.FC<an
   barcodescanner: lazy(() => import('./BarcodeScanner').then(module => ({ default: module.BarcodeScanner }))),
 };
 
+
 export const KYCFlow: React.FC<{ userId: string }> = ({ userId }) => {
   const { flowConfig, loading: flowLoading, error: flowError } = useFlowConfig(userId);
 
