@@ -236,6 +236,7 @@ function App() {
           <StepComponent
             userId={userId}
             onStart={goToNextStep}
+            flowSteps={flow}
           />
         </Suspense>
       );

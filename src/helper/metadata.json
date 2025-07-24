@@ -126,7 +126,7 @@
         "country": "Thailand",
         "country_code": "THA",
         "sate_format": "dd MMM yyyy,yyyy-MM-dd",
-        "type": "DL",
+        "type": "pp",
         "alternative_text": "kingdom of thailand",
         "is_live": 1,
         "enging_language": 0,
@@ -135,13 +135,29 @@
         "tenant_name": "demo company",
         "server_key": "LOCAL"
     },
+        {
+        "id": 57302,
+        "barcode": "ITF F",
+        "country": "Thailand",
+        "country_code": "THA",
+        "sate_format": "dd MMM yyyy,yyyy-MM-dd",
+        "type": "NI",
+        "alternative_text": "",
+        "is_live": 1,
+        "enging_language": 0,
+        "is_country_european": 0,
+        "verstion": 0,
+        "tenant_name": "demo company",
+        "server_key": "LOCAL"
+    },
+
     {
         "id": 58401,
         "barcode": "ITF B",
         "country": "Poland",
         "country_code": "POL",
         "sate_format": "dd MMM yyyy,yyyy-MM-dd",
-        "type": "DL",
+        "type": "PP",
         "alternative_text": "prawo jazdy",
         "is_live": 1,
         "enging_language": 0,
@@ -156,7 +172,7 @@
         "country": "Georgia",
         "country_code": "GEO",
         "sate_format": "dd MMM yyyy,yyyy-MM-dd",
-        "type": "NI",
+        "type": "PP",
         "alternative_text": "",
         "is_live": 1,
         "enging_language": 0,
@@ -180,21 +196,7 @@
         "tenant_name": "demo company",
         "server_key": "LOCAL"
     },
-    {
-        "id": 57302,
-        "barcode": "ITF F",
-        "country": "Thailand",
-        "country_code": "THA",
-        "sate_format": "dd MMM yyyy,yyyy-MM-dd",
-        "type": "NI",
-        "alternative_text": "",
-        "is_live": 1,
-        "enging_language": 0,
-        "is_country_european": 0,
-        "verstion": 0,
-        "tenant_name": "demo company",
-        "server_key": "LOCAL"
-    },
+
 
     {
         "id": 57303,
@@ -263,21 +265,6 @@
         "country_code": "IND",
         "sate_format": "dd MMM yyyy,yyyy-MM-dd",
         "type": "AADHAAR",
-        "alternative_text": "",
-        "is_live": 1,
-        "enging_language": 0,
-        "is_country_european": 0,
-        "verstion": 0,
-        "tenant_name": "demo company",
-        "server_key": "LOCAL"
-  },
-  {
-        "id": 57309,
-        "barcode": "QR F",
-        "country": "South Korea",
-        "country_code": "KOR",
-        "sate_format": "dd MMM yyyy,yyyy-MM-dd",
-        "type": "NI",
         "alternative_text": "",
         "is_live": 1,
         "enging_language": 0,
